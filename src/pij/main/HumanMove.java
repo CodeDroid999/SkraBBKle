@@ -9,7 +9,6 @@ public class HumanMove {
         this.square = square;
     }
 
-    // Getters for word and square
     public String getWord() {
         return word;
     }
@@ -18,41 +17,37 @@ public class HumanMove {
         return square;
     }
 
-    // Method to validate move format
-    public static boolean isValidMoveFormat(String moveInput) {
-        // Check if the input string contains a comma
-        if (!moveInput.contains(",")) {
-            return false;
+    // Method to parse a move input string and create a HumanMove object
+    public static HumanMove parseMove(String moveInput) {
+        String[] parts = moveInput.split(",");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid move format");
         }
+        String word = parts[0].trim();
+        String square = parts[1].trim();
+        return new HumanMove(word, square);
+    }
 
-        // Split the input string into word and square parts
+    // Method to validate the format of a move input string
+    public static boolean isValidMoveFormat(String moveInput) {
         String[] parts = moveInput.split(",");
         if (parts.length != 2) {
             return false;
         }
-
-        // Check if the word part is non-empty
         String word = parts[0].trim();
-        if (word.isEmpty()) {
-            return false;
-        }
-
-        // Check if the square part consists of a letter and a number
         String square = parts[1].trim();
-        if (square.length() != 2 || !Character.isLetter(square.charAt(0)) || !Character.isDigit(square.charAt(1))) {
-            return false;
-        }
-
-        return true;
+        return isValidWordFormat(word) && isValidSquareFormat(square);
     }
 
-    // Method to parse move input and create a HumanMove object
-    public static HumanMove parseMove(String moveInput) {
-        // Extract word and square from the move input
-        String[] parts = moveInput.split(",");
-        String word = parts[0].toUpperCase().trim();
-        String square = parts[1].toLowerCase().trim();
+    // Method to validate the format of a word
+    private static boolean isValidWordFormat(String word) {
+        // Check if the word contains only letters or wildcards
+        return word.matches("[A-Z]+[a-z]*");
+    }
 
-        return new HumanMove(word, square);
+    // Method to validate the format of a square
+    private static boolean isValidSquareFormat(String square) {
+        // Check if the square has the format letter-digit or digit-letter
+        return square.matches("[a-zA-Z]\\d+") || square.matches("\\d+[a-zA-Z]");
     }
 }
