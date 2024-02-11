@@ -37,4 +37,14 @@ public class TileBag {
         }
         return null; // No more tiles in the bag
     }
+
+    public static Object getInstance() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getInstance'");
+    }
+
+    public static Object getInstance() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getInstance'");
+    }
 }

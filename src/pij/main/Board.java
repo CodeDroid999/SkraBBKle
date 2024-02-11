@@ -1,45 +1,34 @@
+
 package pij.main;
 
-import java.util.Arrays;
-
 public class Board {
-    private int size;
-    private char[][] boardState;
 
-    // Constructor
-    public Board(int size) {
-        this.size = size;
-        this.boardState = new char[size][size];
-        initializeBoard();
-    }
+    private Tile[][] tileArr;
 
-    // Method to initialize the board with empty squares
-    private void initializeBoard() {
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
-                boardState[i][j] = '.';
+    public Board() {
+        tileArr = new Tile[BOARD_DIMENSIONS][BOARD_DIMENSIONS];
+
+        for (int row = 0; row < tileArr.length; row++) {
+            for (int col = 0; col < tileArr[0].length; col++) {
+                tileArr[row][col] = new Tile(' ', 0);
             }
         }
     }
 
-    // Method to apply a move to the board
-    public void applyMove(HumanMove move) {
-        // Implement logic to apply the move to the board
-    }
-
-    // Method to check if a move is valid
-    public boolean isValidMove(HumanMove move) {
-        // Implement logic to check if the move is valid
-        return true; // Placeholder for now
-    }
-
-    // Method to print the current state of the board
-    public void printBoard() {
-        System.out.println("Current Board:");
-        for (int i = 0; i < size; i++) {
-            System.out.println(Arrays.toString(boardState[i]));
+    public void print() {
+        for (int row = 0; row < tileArr.length; row++) {
+            StringBuilder rowStringBuilder = new StringBuilder();
+            for (int col = 0; col < tileArr[0].length; col++) {
+                rowStringBuilder.append(tileArr[row][col].getLetter()).append(" ");
+            }
+            System.out.println(rowStringBuilder.toString());
         }
     }
 
-    // Other methods (getters, setters, etc.) can be added as needed
+    public void applyMove(HumanMove move) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'applyMove'");
+    }
+
+    // Additional methods as needed
 }

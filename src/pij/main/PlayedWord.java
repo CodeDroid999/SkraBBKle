@@ -1,36 +1,26 @@
 package pij.main;
 
 public class PlayedWord {
-    private final String word;
-    private final int row;
-    private final int column;
-    private final Direction direction;
+    private String word;
+    private int score;
 
-    public PlayedWord(String word, int row, int column, Direction direction) {
+    public PlayedWord(String word, int score) {
         this.word = word;
-        this.row = row;
-        this.column = column;
-        this.direction = direction;
-    }
-
-    public String getWord() {
-        return word;
-    }
-
-    public int getRow() {
-        return row;
-    }
-
-    public int getColumn() {
-        return column;
-    }
-
-    public Direction getDirection() {
-        return direction;
+        this.score = score;
     }
 
     @Override
     public String toString() {
-        return "Word: " + word + ", Row: " + row + ", Column: " + column + ", Direction: " + direction;
+        return "PlayedWord [word=" + word + ", score=" + score + "]";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null || getClass() != obj.getClass())
+            return false;
+        PlayedWord other = (PlayedWord) obj;
+        return word.equals(other.word);
     }
 }

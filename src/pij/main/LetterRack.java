@@ -2,52 +2,45 @@ package pij.main;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
 
-public class LetterRack {
-    private List<Tile> tiles;
-    private final int rackSize;
+public class LetterRack implements Constants {
+    private ArrayList<Tile> tiles;
+    private Player owner;
 
-    public LetterRack(int rackSize) {
-        this.rackSize = rackSize;
-        this.tiles = new ArrayList<>();
+    public LetterRack(Player owner) {
+        this.owner = owner;
+        tiles = new ArrayList<Tile>();
+        refill();
     }
 
-    public void refill(List<Tile> newTiles) {
-        tiles.clear();
-        tiles.addAll(newTiles.subList(0, Math.min(rackSize, newTiles.size())));
-    }
-
-    public void addTile(Tile tile) {
-        if (tiles.size() < rackSize) {
-            tiles.add(tile);
-        }
-    }
-
-    public void removeTile(Tile tile) {
-        tiles.remove(tile);
-    }
-
-    public void ShuffleTiles() {
-        Collections.shuffle(tiles);
-    }
-
-    public List<Tile> getTiles() {
-        return tiles;
-    }
-
-    public int size() {
-        return tiles.size();
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder rackString = new StringBuilder();
+    public void readTiles() {
         for (Tile tile : tiles) {
-            rackString.append(tile.getLetter()).append(" ");
+            if (tile != null) {
+                System.out.println(tile.toString());
+            }
         }
-        return rackString.toString().trim();
+    }
+
+    public void refill() {
+        while (tiles.size() < TILES_IN_RACK) {
+            Tile newTile = TileBag.getInstance().takeOutTile();
+            if (newTile == null) {
+                return;
+            }
+            tiles.add(newTile);
+        }
+    }
+
+    public void swapTiles() {
+        for (Tile tile : tiles) {
+            if (tile != null) {
+                TileBag.getInstance().addToTileSet(tile);
+            }
+        }
+        tiles.clear();
+        refill();
+    }
+
+ 
     }
 }
-
-

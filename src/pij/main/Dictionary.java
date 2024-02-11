@@ -1,34 +1,73 @@
 package pij.main;
 
 import java.io.BufferedReader;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.HashSet;
-import java.util.Set;
+import java.io.InputStreamReader;
+import java.util.HashMap;
 
 public class Dictionary {
-    private Set<String> wordSet;
+    static WordTrie wordTrie;
+    static HashMap<Character, Integer> pointsPerLetter;
 
     public Dictionary() {
-        wordSet = new HashSet<>();
-        // Load words from file
-        loadWordsFromFile("resources/defaultWordList.txt");
+        wordTrie = new WordTrie();
+        ReadWordList("/defaultWordlist.txt", wordTrie);
+        setupLetterScores();
     }
 
-    // Method to load words from a file
-    private void loadWordsFromFile(String fileName) {
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                wordSet.add(line.trim().toLowerCase());
+    void ReadWordList(String fileName, WordTrie trie) {
+        try {
+            BufferedReader br = new BufferedReader(new InputStreamReader(getClass().getResourceAsStream(fileName)));
+            String word;
+            while ((word = br.readLine()) != null) {
+                trie.insertWord(word.toUpperCase());
             }
+            br.close();
         } catch (IOException e) {
-            System.err.println("Error loading word list from file: " + e.getMessage());
+            e.printStackTrace();
         }
     }
 
-    // Method to check if a word is valid
-    public boolean isValidWord(String word) {
-        return wordSet.contains(word.toLowerCase());
+    public static int getWordScore(String word) {
+        int score = 0;
+        for (char c : word.toCharArray()) {
+            score += pointsPerLetter.get(c);
+        }
+        return score;
+    }
+
+    void setupLetterScores() {
+        pointsPerLetter = new HashMap<>();
+        pointsPerLetter.put('A', 1);
+        pointsPerLetter.put('B', 3);
+        pointsPerLetter.put('C', 3);
+        pointsPerLetter.put('D', 2);
+        pointsPerLetter.put('E', 1);
+        pointsPerLetter.put('F', 4);
+        pointsPerLetter.put('G', 2);
+        pointsPerLetter.put('H', 4);
+        pointsPerLetter.put('I', 1);
+        pointsPerLetter.put('J', 8);
+        pointsPerLetter.put('K', 5);
+        pointsPerLetter.put('L', 1);
+        pointsPerLetter.put('M', 3);
+        pointsPerLetter.put('N', 1);
+        pointsPerLetter.put('O', 1);
+        pointsPerLetter.put('P', 3);
+        pointsPerLetter.put('Q', 10);
+        pointsPerLetter.put('R', 1);
+        pointsPerLetter.put('S', 1);
+        pointsPerLetter.put('T', 1);
+        pointsPerLetter.put('U', 1);
+        pointsPerLetter.put('V', 4);
+        pointsPerLetter.put('W', 4);
+        pointsPerLetter.put('X', 8);
+        pointsPerLetter.put('Y', 4);
+        pointsPerLetter.put('Z', 10);
+    }
+
+    // Prefix validation logic
+    public static boolean isValidPrefix(String prefix) {
+        return wordTrie.searchPrefix(prefix.toUpperCase());
     }
 }

@@ -1,53 +1,143 @@
 package pij.main;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
+
 public class HumanMove {
-    private String word;
-    private String square;
+    private static ArrayList<HumanAction> actionList;
 
-    public HumanMove(String word, String square) {
-        this.word = word;
-        this.square = square;
+    static {
+        actionList = new ArrayList<>();
     }
 
-    public String getWord() {
-        return word;
+    public static ArrayList<HumanAction> getInstance() {
+        return actionList;
     }
 
-    public String getSquare() {
-        return square;
+    public static boolean isValid() {
+        return hasMovedTiles() && (isRowOrCol()) && !hasGaps() && isJoinedUp() && isProperWord();
     }
 
-    // Method to parse a move input string and create a HumanMove object
-    public static HumanMove parseMove(String moveInput) {
-        String[] parts = moveInput.split(",");
-        if (parts.length != 2) {
-            throw new IllegalArgumentException("Invalid move format");
+    private static boolean isJoinedUp() {
+        ArrayList<PlayedWord> newWords = WordsOnBoard.getNewWords();
+        int letterCount = 0;
+        for (PlayedWord word : newWords)
+            letterCount += word.word.length();
+
+        return letterCount > actionList.size();
+    }
+
+    private static boolean isProperWord() {
+        if (Scrabble.enforeDictionary.isSelected()) {
+            ArrayList<PlayedWord> newWords = WordsOnBoard.getNewWords();
+            for (PlayedWord word : newWords) {
+                if (!Dictionary.isValidWord(word.word)) {
+                    return JOptionPane.showConfirmDialog(null, "The word '" + word.word
+                            + "' does not appear in the dictionary. \nWould you like to play it anyway?") == JOptionPane.YES_OPTION;
+                }
+            }
         }
-        String word = parts[0].trim();
-        String square = parts[1].trim();
-        return new HumanMove(word, square);
+        return true;
     }
 
-    // Method to validate the format of a move input string
-    public static boolean isValidMoveFormat(String moveInput) {
-        String[] parts = moveInput.split(",");
-        if (parts.length != 2) {
+    private static boolean hasMovedTiles() {
+        return !actionList.isEmpty();
+    }
+
+    private static boolean isRowOrCol() {
+        return isRow() || isCol();
+    }
+
+    private static boolean isRow() {
+        int moveRow = actionList.get(0).getRow();
+        for (HumanAction a : actionList) {
+            if (moveRow != a.getRow()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static boolean isCol() {
+        int moveCol = actionList.get(0).getCol();
+        for (HumanAction a : actionList) {
+            if (moveCol != a.getCol()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private static void sortActions() {
+        if (isRow()) {
+            Collections.sort(actionList, Comparator.comparing(HumanAction::getCol));
+        } else if (isCol()) {
+            Collections.sort(actionList, Comparator.comparing(HumanAction::getRow));
+        }
+    }
+
+    private static boolean hasGaps() {
+        if (actionList.size() <= 1)
             return false;
+        sortActions();
+
+        int row = actionList.get(0).getRow();
+        int col = actionList.get(0).getCol();
+
+        int endRow = actionList.get(actionList.size() - 1).getRow();
+        int endCol = actionList.get(actionList.size() - 1).getCol();
+
+        if (isRow()) {
+            for (int c = col; c <= endCol; c++) {
+                if (Board.getInstance().getTile(row, c).getLetter() == ' ') {
+                    return true;
+                }
+            }
+        } else if (isCol()) {
+            for (int r = row; r <= endRow; r++) {
+                if (Board.getInstance().getTile(r, col).getLetter() == ' ') {
+                    return true;
+                }
+            }
         }
-        String word = parts[0].trim();
-        String square = parts[1].trim();
-        return isValidWordFormat(word) && isValidSquareFormat(square);
+        return false;
     }
 
-    // Method to validate the format of a word
-    private static boolean isValidWordFormat(String word) {
-        // Check if the word contains only letters or wildcards
-        return word.matches("[A-Z]+[a-z]*");
+    public static void execute(Player player) {
+        ArrayList<PlayedWord> newWords = WordsOnBoard.getNewWords();
+
+        for (PlayedWord word : newWords) {
+            if (!Dictionary.isValidWord(word.word)) {
+                Scrabble.log.append("??? '" + word.word + "' ??? !\n");
+            }
+
+            int score = word.score;
+            Scrabble.log.append(player.name + " plays the word " + word.word + " for " + score + " points\n");
+            player.awardPoints(score);
+        }
+
+        if (player.letterRack.tiles.size() == 0) {
+            Scrabble.log.append("***" + player.name + " scores a BINGO for 50 points! ***    \n");
+            player.awardPoints(50);
+        }
+
+        if (!player.name.equalsIgnoreCase("scrabblebot")) {
+            for (HumanAction action : actionList) {
+                action.getMovedTile().setNormal();
+            }
+            actionList.clear();
+        }
+        BonusChecker.removePlayedBonuses();
+        player.letterRack.refill();
     }
 
-    // Method to validate the format of a square
-    private static boolean isValidSquareFormat(String square) {
-        // Check if the square has the format letter-digit or digit-letter
-        return square.matches("[a-zA-Z]\\d+") || square.matches("\\d+[a-zA-Z]");
+    public static void reverse() {
+        for (HumanAction action : actionList) {
+            action.getMovedTile().setNormal();
+            Scrabble.user.letterRack.tiles.add(action.getMovedTile());
+            Board.getInstance().setTile(action.getRow(), action.getCol(), new Tile(' ', 0));
+        }
+        actionList.clear();
     }
 }
