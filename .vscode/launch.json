@@ -4,6 +4,13 @@
             "type": "java",
             "name": "Main",
             "request": "launch",
+            "mainClass": "Main",
+            "projectName": "SkraBBKle_f8cb8b71"
+        },
+        {
+            "type": "java",
+            "name": "Main",
+            "request": "launch",
             "mainClass": "pij.main.Main",
             "projectName": "SkraBBKle_f8cb8b71"
         },

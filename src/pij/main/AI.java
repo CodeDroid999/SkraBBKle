@@ -1,5 +1,5 @@
 package pij.main;
 
-public class Main {
+public class AI {
 
 }
