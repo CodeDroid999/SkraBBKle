@@ -1,3 +1,5 @@
+package pij.main;
+
 public class HumanMove {
     private String word;
     private String square;

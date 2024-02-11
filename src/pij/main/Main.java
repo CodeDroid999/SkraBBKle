@@ -1,7 +1,5 @@
 package pij.main;
 
-import java.io.File;
-import java.io.FileNotFoundException;
 import java.util.Scanner;
 
 public class Main {
@@ -35,6 +33,7 @@ public class Main {
             }
         } else {
             boardFileName = "resources/defaultBoard.txt"; // Default board file
+            PrintDefaultBoard.print(boardFileName); // Print the default board
         }
 
         // Prompt user to choose between open or closed game
@@ -50,31 +49,34 @@ public class Main {
         }
 
         // Start the game based on user's choices
-        startGame(boardFileName, gameType.equals("o"));
+        startGame(boardFileName, gameType.equals("o"), scanner);
     }
 
     // Method to start the game
-    private static void startGame(String boardFileName, boolean isOpenGame) {
-        // Read and process the board configuration from the file
-        try {
-            Scanner fileScanner = new Scanner(new File(boardFileName));
-            int boardSize = Integer.parseInt(fileScanner.nextLine().trim());
-            String[] board = new String[boardSize];
-            for (int i = 0; i < boardSize; i++) {
-                board[i] = fileScanner.nextLine().trim();
-            }
-            // Initialize the game with the obtained board configuration
-            // Implement this part based on your game logic
-            System.out.println("Game initialized with board configuration from " + boardFileName);
-            System.out.println("Board size: " + boardSize);
-            System.out.println("Board:");
-            for (String row : board) {
-                System.out.println(row);
-            }
-            // Close the file scanner
-            fileScanner.close();
-        } catch (FileNotFoundException e) {
-            System.out.println("Error: File not found.");
+    private static void startGame(String boardFileName, boolean isOpenGame, Scanner scanner) {
+        // Implement game initialization logic here
+
+        // Example of getting human player's move
+        System.out.println("Please enter your move in the format: \"word,square\"");
+        System.out.println("For example, \"HI,f4\" for a downward move or \"HI,4f\" for a rightward move.");
+        System.out.println("Enter \",\" to pass your turn.");
+        System.out.print("Your move: ");
+        String moveInput = scanner.nextLine().trim();
+
+        // Validate move format
+        while (!HumanMove.isValidMoveFormat(moveInput)) {
+            System.out.println("Illegal move format. Please enter your move in the correct format.");
+            System.out.println("Please enter your move in the format: \"word,square\"");
+            System.out.println("For example, \"HI,f4\" for a downward move or \"HI,4f\" for a rightward move.");
+            System.out.println("Enter \",\" to pass your turn.");
+            System.out.print("Your move: ");
+            moveInput = scanner.nextLine().trim();
         }
+
+        // Parse the move input and proceed with the game
+        HumanMove humanMove = HumanMove.parseMove(moveInput);
+        System.out.println("Your move: " + humanMove.getWord() + " at square " + humanMove.getSquare());
+
+        // Continue with the game...
     }
 }
