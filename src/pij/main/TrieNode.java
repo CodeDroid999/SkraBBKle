@@ -1,5 +1,4 @@
-package scrabble;
-
+package pij.main;
 
 import java.util.HashMap;
 
@@ -7,7 +6,10 @@ class TrieNode {
     Character c;
     Boolean isLeaf = false;
     HashMap<Character, TrieNode> children = new HashMap<>();
-    public TrieNode() {}
+
+    public TrieNode() {
+    }
+
     public TrieNode(Character c) {
         this.c = c;
     }

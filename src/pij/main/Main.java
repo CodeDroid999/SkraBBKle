@@ -1,4 +1,4 @@
-package scrabble;
+package pij.main;
 
 import java.util.ArrayList;
 
@@ -9,7 +9,7 @@ public class Main implements Constants {
 	ArrayList<Tile> bestWord;
 	Anchor currentAnchor;
 
-	public AI(Player bot) {
+	public Main(Player bot) {
 		this.bot = bot;
 	}
 

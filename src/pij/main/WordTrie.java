@@ -1,21 +1,23 @@
-package scrabble;
-
+package pij.main;
 
 import java.util.HashMap;
 
 class WordTrie {
     private TrieNode root;
 
-    public WordTrie() {this.root = new TrieNode();}
+    public WordTrie() {
+        this.root = new TrieNode();
+    }
 
     public void insertWord(String word) {
-        if (word == null) return;
+        if (word == null)
+            return;
         TrieNode cur = root;
-        for (char c : word.toCharArray()){
+        for (char c : word.toCharArray()) {
             HashMap<Character, TrieNode> child = cur.children;
-            if (child.containsKey(c)){
+            if (child.containsKey(c)) {
                 cur = child.get(c);
-            } else{
+            } else {
                 cur = new TrieNode(c);
                 child.put(c, cur);
             }
@@ -24,18 +26,19 @@ class WordTrie {
     }
 
     public Boolean searchWord(String word) {
-        if (word == null|| word == "") return false;
+        if (word == null || word == "")
+            return false;
         word = word.toUpperCase();
         TrieNode cur = root;
-        for (char c: word.toCharArray()){
+        for (char c : word.toCharArray()) {
             HashMap<Character, TrieNode> child = cur.children;
-            if (child.containsKey(c)){
+            if (child.containsKey(c)) {
                 cur = child.get(c);
-            } else{
+            } else {
                 return false;
             }
         }
-        if (cur.isLeaf){
+        if (cur.isLeaf) {
             return true;
         } else {
             return false;
@@ -43,14 +46,15 @@ class WordTrie {
     }
 
     public Boolean searchPrefix(String word) {
-        if (word == null) return false;
+        if (word == null)
+            return false;
         word = word.toUpperCase();
         TrieNode cur = root;
-        for (char c: word.toCharArray()){
+        for (char c : word.toCharArray()) {
             HashMap<Character, TrieNode> child = cur.children;
-            if (child.containsKey(c)){
+            if (child.containsKey(c)) {
                 cur = child.get(c);
-            } else{
+            } else {
                 return false;
             }
         }

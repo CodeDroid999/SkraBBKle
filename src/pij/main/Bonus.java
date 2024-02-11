@@ -1,4 +1,4 @@
-package scrabble;
+package pij.main;
 
 class Bonus {
     int row;

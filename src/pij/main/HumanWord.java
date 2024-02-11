@@ -1,6 +1,6 @@
-package scrabble;
+package pij.main;
 
-class HumanWord{
+class HumanWord {
     public HumanWord(int score, String word) {
         this.score = score;
         this.word = word;
