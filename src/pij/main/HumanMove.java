@@ -3,6 +3,7 @@ package pij.main;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Scanner;
 
 public class HumanMove {
     private static ArrayList<HumanAction> actionList;
@@ -33,12 +34,20 @@ public class HumanMove {
             ArrayList<PlayedWord> newWords = WordsOnBoard.getNewWords();
             for (PlayedWord word : newWords) {
                 if (!Dictionary.isValidWord(word.word)) {
-                    return JOptionPane.showConfirmDialog(null, "The word '" + word.word
-                            + "' does not appear in the dictionary. \nWould you like to play it anyway?") == JOptionPane.YES_OPTION;
+                    return promptForConfirmation("The word '" + word.word
+                            + "' does not appear in the dictionary. \nWould you like to play it anyway?");
                 }
             }
         }
         return true;
+    }
+
+    private static boolean promptForConfirmation(String message) {
+        System.out.println(message);
+        System.out.print("Enter 'yes' to confirm, or 'no' to cancel: ");
+        Scanner scanner = new Scanner(System.in);
+        String choice = scanner.nextLine().trim().toLowerCase();
+        return choice.equals("yes");
     }
 
     private static boolean hasMovedTiles() {
@@ -128,7 +137,6 @@ public class HumanMove {
             }
             actionList.clear();
         }
-        BonusChecker.removePlayedBonuses();
         player.letterRack.refill();
     }
 

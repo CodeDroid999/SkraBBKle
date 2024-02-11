@@ -17,4 +17,9 @@ public class WordsOnBoard {
     public static void clearWordList() {
         wordList.clear();
     }
+
+    public static ArrayList<PlayedWord> getNewWords() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getNewWords'");
+    }
 }

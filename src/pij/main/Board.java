@@ -30,5 +30,10 @@ public class Board {
         throw new UnsupportedOperationException("Unimplemented method 'applyMove'");
     }
 
+    public static Object getInstance() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'getInstance'");
+    }
+
     // Additional methods as needed
 }

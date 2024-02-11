@@ -70,4 +70,9 @@ public class Dictionary {
     public static boolean isValidPrefix(String prefix) {
         return wordTrie.searchPrefix(prefix.toUpperCase());
     }
+
+    public static boolean isValidWord(String word) {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'isValidWord'");
+    }
 }

@@ -36,4 +36,9 @@ public class Tile {
     public void setWordMultiplier(int wordMultiplier) {
         this.wordMultiplier = wordMultiplier;
     }
+
+    public void setNormal() {
+        // TODO Auto-generated method stub
+        throw new UnsupportedOperationException("Unimplemented method 'setNormal'");
+    }
 }

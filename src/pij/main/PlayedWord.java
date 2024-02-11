@@ -1,8 +1,8 @@
 package pij.main;
 
 public class PlayedWord {
-    private String word;
-    private int score;
+    String word;
+    int score;
 
     public PlayedWord(String word, int score) {
         this.word = word;
