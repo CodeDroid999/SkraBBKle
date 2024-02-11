@@ -1,9 +1,5 @@
-package scrabble;
+package pij.main;
 
-import scrabble.Main;
-import scrabble.Player;
-import scrabble.Tile;
-import scrabble.TileBag;
 import java.awt.BorderLayout;
 import java.awt.ComponentOrientation;
 import java.awt.Dimension;

@@ -1,6 +1,6 @@
 package pij.main;
 
-import scrabble.*;
+import pij.main.*;
 import java.util.ArrayList;
 
 public class WordsOnBoard implements Constants {

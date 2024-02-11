@@ -1,6 +1,5 @@
 package pij.main;
 
-import scrabble.Tile;
 import java.util.ArrayList;
 
 public class Move {

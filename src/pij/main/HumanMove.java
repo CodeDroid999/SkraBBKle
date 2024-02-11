@@ -1,8 +1,5 @@
 package pij.main;
 
-import scrabble.Constants;
-import scrabble.WordsOnBoard;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
