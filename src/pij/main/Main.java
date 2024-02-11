@@ -73,10 +73,6 @@ public class Main {
             moveInput = scanner.nextLine().trim();
         }
 
-        // Parse the move input and proceed with the game
-        HumanMove humanMove = HumanMove.parseMove(moveInput);
-        System.out.println("Your move: " + humanMove.getWord() + " at square " + humanMove.getSquare());
-
         // Continue with the game...
     }
 }
