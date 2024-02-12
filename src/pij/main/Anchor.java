@@ -2,8 +2,6 @@ package pij.main;//I define an anchor as a tile on the board from which a new wo
 
 //in this primitive definition, it must be possible to add a word while only adding a single word to an anchor
 
-import scrabble.Tile;
-
 public class Anchor {
 
 	int row;

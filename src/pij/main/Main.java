@@ -1,326 +1,147 @@
 package pij.main;
 
-import java.util.ArrayList;
+import java.util.Scanner;
 
-public class Main implements Constants {
+public class Main {
+	public static void main(String[] args) {
+		Scanner scanner = new Scanner(System.in);
 
-	Player bot;
-	int maxScore;
-	ArrayList<Tile> bestWord;
-	Anchor currentAnchor;
+		// Prompt the user to choose between loading a board or using the default board
+		System.out.println("Choose an option:");
+		System.out.println("1. Load a board");
+		System.out.println("2. Use the default board");
+		int choice = scanner.nextInt();
 
-	public Main(Player bot) {
-		this.bot = bot;
-	}
-
-	boolean makeFirstMove() {
-
-		bestWord = new ArrayList<>();
-		getStartingWord(bot.letterRack.tiles, bestWord, "", 0);
-
-		if (maxScore == 0) {
-			System.err.println("ai couldnt move with starting tiles \n" + bot.letterRack.toString());
-			bot.swapTiles();
-
-			return false;
-		}
-
-		Move move = new Move(bestWord, 7, 7 - (bestWord.size() / 2), true, maxScore, bot);
-		move.execute(Board.getInstance().tileArr);
-
-		bot.letterRack.refill();
-		return true;
-
-	}
-
-	boolean makeSubsequentMove() {
-		maxScore = 0;
-		bestWord = new ArrayList<Tile>();
-		for (Anchor anchor : findAnchors()) {
-			ArrayList<Tile> inputTiles = new ArrayList<Tile>(bot.letterRack.tiles);
-			inputTiles.add(anchor.anchorTile);
-			findHighestScoringWord(inputTiles, new ArrayList<Tile>(), "", 0, anchor);
-		}
-		if (bestWord == null || bestWord.size() == 0) {
-			bot.swapTiles();
-			return false;
-		} else {
-
-			int startCol;
-			int startRow;
-			if (currentAnchor.across) {
-				startCol = currentAnchor.col - getAnchorPosition(currentAnchor, bestWord);
-				startRow = currentAnchor.row;
-			} else {
-				startCol = currentAnchor.col;
-				startRow = currentAnchor.row - getAnchorPosition(currentAnchor, bestWord);
-			}
-
-			Move move = new Move(bestWord, startRow, startCol, currentAnchor.across, maxScore, bot);
-			move.execute(Board.getInstance().tileArr);
-			// System.out.println(move.toString());
-
-			Board.getInstance().repaint();
-		}
-		return true;
-	}
-
-	private int getAnchorPosition(Anchor anchor, ArrayList<Tile> word) {
-		// ToDo: allow for case of multiple anchor positions
-		for (int c = 0; c < word.size(); c++) {
-			if (word.get(c).letter == anchor.anchorTile.letter) {
-				return c;
-			}
-		}
-		return -1000;
-	}
-
-	private boolean fitsOnBoard(Anchor anchor, ArrayList<Tile> word) {
-		// check if word would cause spilling off the edge of the board
-		int anchorPos = getAnchorPosition(anchor, word);
-		int prefixLength = anchorPos;
-		int posfixLength = word.size() - anchorPos - 1;
-
-		if (anchor.prefixCap >= prefixLength && anchor.postfixCap >= posfixLength) {
-			return true;
-		} else {
-			return false;
-		}
-	}
-
-	private void findHighestScoringWord(ArrayList<Tile> inputTiles, ArrayList<Tile> tilesToBeUsed, String currentWord,
-			int score, Anchor anchor) {
-		for (int tileNo = 0; tileNo < inputTiles.size(); tileNo++) {
-			Tile curTile = inputTiles.get(tileNo);
-			if (curTile == null)
-				break;
-			if (isValidPrefix(currentWord + curTile.letter)) {
-
-				ArrayList<Tile> remainingTiles = new ArrayList<Tile>(inputTiles);
-				ArrayList<Tile> tilesInWord = new ArrayList<Tile>(tilesToBeUsed);
-				remainingTiles.remove(tileNo);
-				tilesInWord.add(curTile);
-				findHighestScoringWord(remainingTiles, tilesInWord, currentWord + curTile.letter,
-						score + curTile.points, anchor);
-
-				if (currentWord.length() >= 7) {
-					score += 50;
+		Board board;
+		if (choice == 1) {
+			// Ask for the file name and validate it
+			String fileName;
+			boolean isValidFile = false;
+			do {
+				System.out.println("Enter the file name:");
+				fileName = scanner.next();
+				isValidFile = validateFile(fileName);
+				if (!isValidFile) {
+					System.out.println("Invalid file. Please try again.");
 				}
+			} while (!isValidFile);
 
-				// need to check if anchor is in the word before we propose it as an answer
-				if (tilesToBeUsed.contains(anchor.anchorTile) || curTile.equals(anchor.anchorTile)) {
-					if (isValidWord(currentWord + curTile.letter)) {
-						if (fitsOnBoard(anchor, tilesInWord)) {
-							if (maxScore < score + curTile.points) {
-								maxScore = score + curTile.points;
-								bestWord = tilesInWord;
-								currentAnchor = anchor;
-							}
-						}
-					}
-				}
-			}
-		}
-	}
-
-	boolean isValidPrefix(String prefix) {
-		if (Scrabble.hardMode.isSelected()) {
-			if (Dictionary.bigTrie.searchPrefix(prefix)) {
-				return true;
-			} else {
-				return false;
-			}
+			// Load the board from the file
+			board = loadBoardFromFile(fileName);
 		} else {
-			if (Dictionary.smallTrie.searchPrefix(prefix)) {
-				return true;
-			} else {
-				return false;
-			}
+			// Use the default board
+			board = loadDefaultBoard();
 		}
-	}
 
-	boolean isValidWord(String word) {
-		if (Scrabble.hardMode.isSelected()) {
-			if (Dictionary.bigTrie.searchWord(word)) {
-				return true;
-			} else {
-				return false;
-			}
-		} else {
-			if (Dictionary.smallTrie.searchWord(word)) {
-				return true;
-			} else {
-				return false;
-			}
-		}
-	}
+		// Prompt the user to choose between playing an open game or a closed game
+		System.out.println("Choose an option:");
+		System.out.println("1. Play an open game");
+		System.out.println("2. Play a closed game");
+		int gameType = scanner.nextInt();
 
-	void getStartingWord(ArrayList<Tile> inputTiles, ArrayList<Tile> tilesToBeUsed, String currentWord, int score) {
-		for (int tileNo = 0; tileNo < inputTiles.size(); tileNo++) {
-			Tile curTile = inputTiles.get(tileNo);
+		// Set the flag to indicate if it is an open game
+		boolean isOpenGame = (gameType == 1);
 
-			if (isValidPrefix(currentWord + curTile.letter)) {
+		// Initialize the players
+		Player humanPlayer = new Player("Human");
+		Player computerPlayer = new Player("Computer");
 
-				ArrayList<Tile> remainingTiles = new ArrayList<Tile>(inputTiles);
-				ArrayList<Tile> tilesInWord = new ArrayList<Tile>(tilesToBeUsed);
-				remainingTiles.remove(tileNo);
-				tilesInWord.add(curTile);
-				getStartingWord(remainingTiles, tilesInWord, currentWord + curTile.letter, score + curTile.points);
+		// Start the game loop
+		while (true) {
+			// Display the current score and board
+			displayScore(humanPlayer, computerPlayer);
+			displayBoard(board);
 
-				if (currentWord.length() >= 6) {
-					score += 50;
-				}
+			// Check if it is the human player's turn
+			if (isOpenGame || humanPlayer.hasValidMove(board)) {
+				// Prompt the user for their move
+				System.out.println("Your turn. Enter your move:");
+				String move = scanner.next();
 
-				if (isValidWord(currentWord + curTile.letter)) {
-					if (maxScore < score + curTile.points) {
-						maxScore = score + curTile.points;
-						bestWord = tilesInWord;
-					}
-				}
-			}
-		}
-	}
-
-	ArrayList<Anchor> findAnchors() {
-		ArrayList<Anchor> anchors = new ArrayList<Anchor>();
-		Tile[][] tileArr = Board.getInstance().tileArr;
-		for (int row = 0; row < tileArr.length; row++) {
-			for (int col = 0; col < tileArr[0].length; col++) {
-				if (tileArr[row][col].letter != ' ') {
-
-					int startCol = col;
-					int endCol = col;
-
-					// check how far left the word can go without collisions
-					if (col > 0 && tileArr[row][col - 1].letter < 53) {
-						while (startCol > 0) {
-							if (row != BOARD_DIMENSIONS - 1 && tileArr[row + 1][startCol - 1].letter != ' ') {
-								break;
-							}
-							if (row != 0 && tileArr[row - 1][startCol - 1].letter != ' ') {
-								break;
-							}
-							if (startCol == 1) {
-								startCol--;
-								break;
-							}
-							if (tileArr[row][startCol - 2].letter != ' ') {
-								break;
-							}
-							startCol--;
-						}
-					}
-
-					// check how far right the word can go without collisions
-					if (col < BOARD_DIMENSIONS - 1 && tileArr[row][col + 1].letter == ' ') {
-						while (endCol < BOARD_DIMENSIONS - 1) {
-
-							if (row != BOARD_DIMENSIONS - 1 && tileArr[row + 1][endCol + 1].letter != ' ') {
-								break;
-							}
-							if (row != 0 && tileArr[row - 1][endCol + 1].letter != ' ') {
-								break;
-							}
-							if (endCol == BOARD_DIMENSIONS - 2) {
-								endCol++;
-								break;
-							}
-
-							if (tileArr[row][endCol + 2].letter != ' ') {
-								break;
-							}
-
-							endCol++;
-						}
-					}
-
-					// add the horizontal anchors
-					if (col - startCol > 0 && endCol - col > 0) { // words that can go left or right
-						anchors.add(new Anchor(row, col, tileArr[row][col], col - startCol, endCol - col, true));
+				// Validate the move format
+				if (isValidMoveFormat(move)) {
+					// Handle the pass turn option
+					if (move.equalsIgnoreCase("pass")) {
+						humanPlayer.passTurn();
 					} else {
-						// if only one then we need to do additional checks
-						if (col - startCol > 0) {
-							if (col < BOARD_DIMENSIONS - 1 && tileArr[row][col + 1].letter == ' ') { // words that can
-																										// only go left
-								anchors.add(
-										new Anchor(row, col, tileArr[row][col], col - startCol, endCol - col, true));
-							}
-						}
-						if (endCol - col > 0) {
-							if (col > 0 && tileArr[row][col - 1].letter == ' ') { // words that can only go right
-								anchors.add(
-										new Anchor(row, col, tileArr[row][col], col - startCol, endCol - col, true));
-							}
-						}
+						// Make the move on the board
+						humanPlayer.makeMove(move, board);
 					}
-
-					// check not at edges - have to re-think algorithm for edges.
-					int startRow = row;
-					int endRow = row;
-
-					// check how high the word can go without collisions
-					if (row > 0 && tileArr[row - 1][col].letter == ' ') {
-						while (startRow > 0) {
-							if (col < BOARD_DIMENSIONS - 1 && tileArr[startRow - 1][col + 1].letter != ' ') {
-								break;
-							}
-							if (col > 0 && tileArr[startRow - 1][col - 1].letter != ' ') {
-								break;
-							}
-							if (startRow == 1) {
-								startRow--;
-								break;
-							}
-							if (tileArr[startRow - 2][col].letter != ' ') {
-								break;
-							}
-							startRow--;
-						}
-
-					}
-
-					// check how low the word can go without collisions
-					if (row < BOARD_DIMENSIONS - 1 && tileArr[row + 1][col].letter == ' ') {
-						while (endRow < BOARD_DIMENSIONS - 1) {
-							if (col < BOARD_DIMENSIONS - 1 && tileArr[endRow + 1][col + 1].letter != ' ') {
-								break;
-							}
-							if (col > 0 && tileArr[endRow + 1][col - 1].letter != ' ') {
-								break;
-							}
-							if (endRow == BOARD_DIMENSIONS - 2) {
-								endRow++;
-								break;
-							}
-							if (tileArr[endRow + 2][col].letter != ' ') {
-								break;
-							}
-
-							endRow++;
-						}
-					}
-
-					if (row - startRow > 0 && endRow - row > 0) {
-						anchors.add(new Anchor(row, col, tileArr[row][col], row - startRow, endRow - row, false));
-					} else {// if only one then we need to do additional checks
-						if (row - startRow > 0) { // words that can only go up
-							if (row < BOARD_DIMENSIONS - 1 && tileArr[row + 1][col].letter == ' ') {
-								anchors.add(
-										new Anchor(row, col, tileArr[row][col], row - startRow, endRow - row, false));
-							}
-						}
-						if (endRow - row > 0) { // words that can only go down
-							if (row > 0 && tileArr[row - 1][col].letter == ' ') {
-								anchors.add(
-										new Anchor(row, col, tileArr[row][col], row - startRow, endRow - row, false));
-							}
-						}
-					}
-
+				} else {
+					System.out.println("Invalid move format. Please try again.");
 				}
 			}
+
+			// Check if it is the computer player's turn
+			if (isOpenGame || computerPlayer.hasValidMove(board)) {
+				// Compute the computer player's move
+				String move = computerPlayer.computeMove(board);
+
+				// Display the move
+				System.out.println("Computer's turn. Move: " + move);
+
+				// Make the move on the board
+				computerPlayer.makeMove(move, board);
+			}
+
+			// Check if the game is over
+			if (isGameOver(humanPlayer, computerPlayer)) {
+				// Calculate the final scores
+				int humanScore = humanPlayer.calculateScore(board);
+				int computerScore = computerPlayer.calculateScore(board);
+
+				// Determine the winner
+				String winner;
+				if (humanScore > computerScore) {
+					winner = "Human";
+				} else if (humanScore < computerScore) {
+					winner = "Computer";
+				} else {
+					winner = "Tie";
+				}
+
+				// Display the final scores and the winner
+				System.out.println("Final Scores:");
+				System.out.println("Human: " + humanScore);
+				System.out.println("Computer: " + computerScore);
+				System.out.println("Winner: " + winner);
+
+				// Terminate the program
+				break;
+			}
 		}
-		return anchors;
 	}
 
+	private static boolean validateFile(String fileName) {
+		// TODO: Implement file validation logic
+		return true;
+	}
+
+	private static Board loadBoardFromFile(String fileName) {
+		// TODO: Implement board loading logic
+		return new Board();
+	}
+
+	private static Board loadDefaultBoard() {
+		// TODO: Implement default board loading logic
+		return new Board();
+	}
+
+	private static void displayScore(Player humanPlayer, Player computerPlayer) {
+		// TODO: Implement score display logic
+	}
+
+	private static void displayBoard(Board board) {
+		// TODO: Implement board display logic
+	}
+
+	private static boolean isValidMoveFormat(String move) {
+		// TODO: Implement move format validation logic
+		return true;
+	}
+
+	private static boolean isGameOver(Player humanPlayer, Player computerPlayer) {
+		// TODO: Implement game over condition logic
+		return false;
+	}
 }

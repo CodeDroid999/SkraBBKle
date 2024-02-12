@@ -1,9 +1,5 @@
 package pij.main;
 
-import scrabble.Constants;
-import scrabble.Scrabble;
-import scrabble.Tile;
-
 import java.awt.Canvas;
 import java.awt.Color;
 import java.awt.Graphics;
